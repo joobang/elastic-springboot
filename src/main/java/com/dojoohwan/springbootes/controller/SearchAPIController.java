@@ -20,8 +20,10 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
+import org.elasticsearch.search.sort.ScoreSortBuilder;
 import org.elasticsearch.search.sort.ScriptSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -53,10 +55,20 @@ public class SearchAPIController {
         String aliasName = "t1-test01";
         
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.multiMatchQuery(name, "name_auto.keyword","name_auto.ngram","name_auto.edge")));
-        
+        // query
+        //searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.multiMatchQuery(name, "name_auto.keyword","name_auto.ngram","name_auto.edge")));
+        //searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.multiMatchQuery(name)
+        //                                                                         .field("name_auto.keyword",3.0f)
+        //                                                                         .field("name_auto.edge")
+        //                                                                         .field("name_auto.ngram")));
+        searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.multiMatchQuery(name, "name_auto.ngram")));
+
         // sort
+        // sort by score
+        //searchSourceBuilder.sort(new ScoreSortBuilder().order(SortOrder.DESC)); 
+        // sort by length
         Script script = new Script("doc['name_auto.keyword'].value.length()");
+        
         searchSourceBuilder.sort(SortBuilders.scriptSort(script, ScriptSortBuilder.ScriptSortType.NUMBER));
         // highlight
         HighlightBuilder highlightBuilder = new HighlightBuilder().field("name_auto.*");

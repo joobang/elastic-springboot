@@ -12,8 +12,10 @@ import org.elasticsearch.script.Script;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.sort.ScoreSortBuilder;
 import org.elasticsearch.search.sort.ScriptSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.stereotype.Component;
 
 import com.dojoohwan.springbootes.document.ProductDocument;
@@ -37,16 +39,25 @@ public class ElasticsearchTestRepository implements ProductUseCase {
     public Flux<ProductDocument> searchAutuocompleteByName(String name) {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         // query
-        searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.multiMatchQuery(name, "name_auto.keyword","name_auto.ngram","name_auto.edge")));
-        
+        //searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.multiMatchQuery(name, "name_auto.keyword","name_auto.ngram","name_auto.edge")));
+        //searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.multiMatchQuery(name)
+        //                                                                         .field("name_auto.keyword",3.0f)
+        //                                                                         .field("name_auto.edge")
+        //                                                                         .field("name_auto.ngram")));
+        searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.multiMatchQuery(name, "name_auto.ngram")));
+
         // sort
+        // sort by score
+        //searchSourceBuilder.sort(new ScoreSortBuilder().order(SortOrder.DESC)); 
+        // sort by length
         Script script = new Script("doc['name_auto.keyword'].value.length()");
+        
         searchSourceBuilder.sort(SortBuilders.scriptSort(script, ScriptSortBuilder.ScriptSortType.NUMBER));
         // highlight
         HighlightBuilder highlightBuilder = new HighlightBuilder().field("name_auto.*");
         searchSourceBuilder.highlighter(highlightBuilder);
 
-        //System.out.println(searchSourceBuilder);
+        System.out.println(searchSourceBuilder);
         
         return getProductFlux(searchSourceBuilder);
     }
