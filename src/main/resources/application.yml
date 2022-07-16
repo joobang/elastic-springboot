@@ -5,3 +5,7 @@ logging:
 elasticsearch:
   host: 127.0.0.1
   port: 9200
+  url: 'localhost:9200'
+
+server:
+  port: 8082
