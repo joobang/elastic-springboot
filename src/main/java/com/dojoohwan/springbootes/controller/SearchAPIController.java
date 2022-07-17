@@ -57,15 +57,15 @@ public class SearchAPIController {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         // query
         //searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.multiMatchQuery(name, "name_auto.keyword","name_auto.ngram","name_auto.edge")));
-        //searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.multiMatchQuery(name)
-        //                                                                         .field("name_auto.keyword",3.0f)
-        //                                                                         .field("name_auto.edge")
-        //                                                                         .field("name_auto.ngram")));
-        searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.multiMatchQuery(name, "name_auto.ngram")));
+        searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.multiMatchQuery(name)
+                                                                                 .field("name_auto.keyword",3.0f)
+                                                                                .field("name_auto.edge")
+                                                                                 .field("name_auto.ngram")));
+        //searchSourceBuilder.query(QueryBuilders.boolQuery().must(QueryBuilders.multiMatchQuery(name, "name_auto.ngram")));
 
         // sort
         // sort by score
-        //searchSourceBuilder.sort(new ScoreSortBuilder().order(SortOrder.DESC)); 
+        searchSourceBuilder.sort(new ScoreSortBuilder().order(SortOrder.DESC)); 
         // sort by length
         Script script = new Script("doc['name_auto.keyword'].value.length()");
         
